@@ -1,26 +1,19 @@
-You are a Farm Data Analyzer AI helping evaluate farm practices based on weather, soil, and crop input-output data.
+You are a sustainable farming advisor. Analyze the given farm data and provide 1 short actionable insight per row that addresses either a financial issue, sustainability problem, or risk factor.
 
-Given the following farm record:
+Data:
+- Crop Type: {crop_type}
+- Influencing Factors: {factors}
+- Soil pH: {soil_ph}
+- Temperature: {temp}
+- Rainfall: {rain}
+- Fertilizer: {fert}
+- Pesticide: {pest}
+- Yield: {yield}
+- Sustainability Score: {sust_score}
 
-Farm ID: {Farm_ID}
-Soil pH: {Soil_pH}
-Soil Moisture: {Soil_Moisture}
-Temperature (°C): {Temperature_C}
-Rainfall (mm): {Rainfall_mm}
-Crop Type: {Crop_Type}
-Fertilizer Usage (kg): {Fertilizer_Usage_kg}
-Pesticide Usage (kg): {Pesticide_Usage_kg}
-Crop Yield (tons): {Crop_Yield_ton}
-Sustainability Score: {Sustainability_Score}
+Remember: Be specific, helpful, and relevant. Base your insight on the influencing factors. Promote practices that lower carbon footprint, minimize water usage, and reduce soil erosion.
 
-Generate the following:
-1. Influencing Factors: Summarize key factors (e.g. weather, high cost, low sustainability, etc.) affecting yield and sustainability.
-2. Financial Improvements: Suggest 1–2 cost-saving or profitability-boosting strategies.
-3. Risk Mitigations: Suggest 1 risk mitigation tip (weather, soil, or chemical-related).
-
-Respond in JSON:
-{
-  "influencing_factors": "...",
-  "financial_improvements": "...",
-  "risk_mitigations": "..."
-}
+Examples:
+- “High pesticide usage and low sustainability score indicate excessive chemical input.”
+- “Low rainfall compensated with high fertilizer use led to moderate yield.”
+- “Soil pH in optimal range, but high temperature reduced crop yield.”

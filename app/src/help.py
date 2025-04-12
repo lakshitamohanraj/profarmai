@@ -1,12 +1,15 @@
 import pandas as pd
-from langchain.llms import Ollama
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
+import os
 
-# --- STEP 1: Load Data ---
-df = pd.read_csv("farm_data.csv")
+load_dotenv()
 
-# --- STEP 2: Categorize Levels ---
+
+df = pd.read_csv("D:\\accenture-hackathon\\profarmai\\data\\farmer_advisor_dataset.csv")
+
+
 def categorize(value, low, high):
     if value < low:
         return "low"
@@ -15,7 +18,6 @@ def categorize(value, low, high):
     else:
         return "medium"
 
-# Calculate thresholds
 pesticide_25, pesticide_75 = df['Pesticide_Usage_kg'].quantile([0.25, 0.75])
 fert_25, fert_75 = df['Fertilizer_Usage_kg'].quantile([0.25, 0.75])
 yield_25, yield_75 = df['Crop_Yield_ton'].quantile([0.25, 0.75])
@@ -23,7 +25,6 @@ temp_25, temp_75 = df['Temperature_C'].quantile([0.25, 0.75])
 rain_25, rain_75 = df['Rainfall_mm'].quantile([0.25, 0.75])
 sust_25, sust_75 = df['Sustainability_Score'].quantile([0.25, 0.75])
 
-# Categorize columns
 df['pesticide_level'] = df['Pesticide_Usage_kg'].apply(lambda x: categorize(x, pesticide_25, pesticide_75))
 df['fertilizer_level'] = df['Fertilizer_Usage_kg'].apply(lambda x: categorize(x, fert_25, fert_75))
 df['yield_level'] = df['Crop_Yield_ton'].apply(lambda x: categorize(x, yield_25, yield_75))
@@ -31,7 +32,6 @@ df['temp_level'] = df['Temperature_C'].apply(lambda x: categorize(x, temp_25, te
 df['rain_level'] = df['Rainfall_mm'].apply(lambda x: categorize(x, rain_25, rain_75))
 df['sustainability_level'] = df['Sustainability_Score'].apply(lambda x: categorize(x, sust_25, sust_75))
 
-# --- STEP 3: Create Influencing Factors String ---
 def influencing_factors(row):
     factors = []
     if row['pesticide_level'] == 'high':
@@ -52,8 +52,11 @@ def influencing_factors(row):
 
 df['influencing_factors'] = df.apply(influencing_factors, axis=1)
 
-# --- STEP 4: Setup LLM (Ollama) ---
-llm = Ollama(model="mistral")  # Or "llama2", etc.
+llm = ChatGroq(
+    temperature=0.4,
+    model_name="llama-3.3-70b-versatile",
+    groq_api_key=os.getenv("GROQ_API_KEY")
+)
 
 template = """
 You are a sustainable farming advisor. Based on the following data, give a single-line insight on the farm practice.
@@ -77,11 +80,10 @@ prompt = PromptTemplate(
     template=template.strip(),
 )
 
-chain = LLMChain(llm=llm, prompt=prompt)
+chain = prompt | llm
 
-# --- STEP 5: Generate Insights ---
 def generate_insight(row):
-    return chain.run({
+    result = chain.invoke({
         "crop_type": row["Crop_Type"],
         "factors": row["influencing_factors"],
         "soil_ph": row["Soil_pH"],
@@ -91,10 +93,10 @@ def generate_insight(row):
         "pest": row["Pesticide_Usage_kg"],
         "yield": row["Crop_Yield_ton"],
         "sust_score": row["Sustainability_Score"]
-    }).strip()
+    })
+    return result.content.strip() if hasattr(result, 'content') else str(result).strip()
 
 df['insights'] = df.apply(generate_insight, axis=1)
 
-# --- STEP 6: Save Final CSV ---
-df[['Farm_ID', 'influencing_factors', 'insights']].to_csv("farm_data_with_factors_and_insights.csv", index=False)
+df[['influencing_factors', 'insights']].to_csv("farm_data_with_factors_and_insights.csv", index=False)
 print("✅ New CSV saved as 'farm_data_with_factors_and_insights.csv'")
