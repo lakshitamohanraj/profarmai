@@ -96,7 +96,8 @@ def generate_insight(row):
     })
     return result.content.strip() if hasattr(result, 'content') else str(result).strip()
 
-df['insights'] = df.apply(generate_insight, axis=1)
 
-df[['influencing_factors', 'insights']].to_csv("farm_data_with_factors_and_insights.csv", index=False)
-print("✅ New CSV saved as 'farm_data_with_factors_and_insights.csv'")
+# df['insights'] = df.apply(generate_insight, axis=1)
+
+# df[['influencing_factors', 'insights']].to_csv("farm_data_with_factors_and_insights.csv", index=False)
+# print("✅ New CSV saved as 'farm_data_with_factors_and_insights.csv'")

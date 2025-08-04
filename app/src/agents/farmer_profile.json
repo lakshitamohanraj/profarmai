@@ -1,0 +1,24 @@
+{
+  "farmer_id": "FARM5678",
+  "name": "Ravi Kumar",
+  "location": {
+    "village": "Kanchipuram",
+    "state": "Tamil Nadu",
+    "region": "South India",
+    "pincode": "631501"
+  },
+  "farming_profile": {
+    "primary_crops": ["Tomato", "Brinjal"],
+    "farming_type": "Organic",
+    "land_area_acres": 4,
+    "irrigation": "Drip",
+    "storage_facility": true,
+    "transport_facility": false
+  },
+  "trade_preferences": {
+    "preferred_buyer_type": ["Wholesale", "Organic Retail Chains"],
+    "preferred_seller_type": ["Certified Organic Input Suppliers"],
+    "max_logistics_range_km": 100,
+    "can_handle_bulk_orders": false
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "farm_name": "Sunrise Homestead",
+  "farmer_name": "Rajesh Kumar",
+  "location": "Kilmudalambedu, Tamil Nadu",
+  "reporting_period": "2024-2025 Financial Year",
+  "summary_date": "July 30, 2025",
+  "balance_sheet": {
+    "report_date": "March 31, 2025",
+    "assets": {
+      "current_assets": [
+        {"item": "Cash & Bank Balance", "amount": 75000, "currency": "INR"},
+        {"item": "Accounts Receivable (Produce Sold on Credit)", "amount": 50000, "currency": "INR"},
+        {"item": "Inventory (Grains, Feed, Supplies)", "amount": 120000, "currency": "INR"},
+        {"item": "Prepaid Expenses (Insurance, Rent)", "amount": 15000, "currency": "INR"}
+      ],
+      "intermediate_assets": [
+        {"item": "Machinery & Equipment", "amount": 350000, "currency": "INR", "depreciation": 35000},
+        {"item": "Breeding Livestock", "amount": 150000, "currency": "INR"}
+      ],
+      "fixed_assets": [
+        {"item": "Land (4 hectares)", "amount": 2000000, "currency": "INR"},
+        {"item": "Farm Buildings", "amount": 250000, "currency": "INR", "depreciation": 10000}
+      ]
+    },
+    "liabilities": {
+      "current_liabilities": [
+        {"item": "Accounts Payable (Input Suppliers)", "amount": 40000, "currency": "INR"},
+        {"item": "Short-term Loans (Crop Loan)", "amount": 80000, "currency": "INR"},
+        {"item": "Accrued Expenses (Wages)", "amount": 20000, "currency": "INR"}
+      ],
+      "non_current_liabilities": [
+        {"item": "Long-term Bank Loan (Machinery)", "amount": 150000, "currency": "INR"},
+        {"item": "Mortgage Payable (Land)", "amount": 500000, "currency": "INR"}
+      ]
+    },
+    "owner_equity": {
+      "initial_investment": 1500000,
+      "retained_earnings": 102000,
+      "net_worth": 1602000,
+      "currency": "INR"
+    }
+  },
+  "income_statement": {
+    "reporting_period": "April 1, 2024 - March 31, 2025",
+    "revenue": [
+      {"source": "Paddy Sales", "amount": 400000, "currency": "INR"},
+      {"source": "Milk Sales", "amount": 250000, "currency": "INR"},
+      {"source": "Custom Work & Services", "amount": 100000, "currency": "INR"}
+    ],
+    "cost_of_goods_sold": [
+      {"item": "Seeds & Saplings", "amount": 50000, "currency": "INR"},
+      {"item": "Fertilizers & Pesticides", "amount": 75000, "currency": "INR"},
+      {"item": "Feed & Supplements", "amount": 100000, "currency": "INR"}
+    ],
+    "gross_profit": {
+      "amount": 525000,
+      "currency": "INR"
+    },
+    "operating_expenses": [
+      {"item": "Farm Labor Wages", "amount": 125000, "currency": "INR"},
+      {"item": "Machinery Maintenance & Fuel", "amount": 50000, "currency": "INR"},
+      {"item": "Utilities (Electricity, Water)", "amount": 15000, "currency": "INR"},
+      {"item": "Rent/Lease Payments", "amount": 50000, "currency": "INR"},
+      {"item": "Insurance Premiums", "amount": 25000, "currency": "INR"},
+      {"item": "Depreciation Expense", "amount": 45000, "currency": "INR"}
+    ],
+    "net_farm_income": {
+      "amount": 200000,
+      "currency": "INR"
+    }
+  },
+  "cash_flow_statement": {
+    "reporting_period": "April 1, 2024 - March 31, 2025",
+    "operating_activities": {
+      "cash_inflows": [
+        {"source": "Cash Sales (Crops, Milk)", "amount": 650000, "currency": "INR"},
+        {"source": "Receipts from Custom Work", "amount": 100000, "currency": "INR"}
+      ],
+      "cash_outflows": [
+        {"item": "Payments for Inputs (Seeds, Fertilizers, Feed)", "amount": 225000, "currency": "INR"},
+        {"item": "Payments for Labor", "amount": 125000, "currency": "INR"},
+        {"item": "Payments for Maintenance & Fuel", "amount": 50000, "currency": "INR"},
+        {"item": "Payments for Rent/Lease", "amount": 50000, "currency": "INR"},
+        {"item": "Payments for Utilities & Insurance", "amount": 40000, "currency": "INR"}
+      ],
+      "net_cash_from_operating_activities": {
+        "amount": 260000,
+        "currency": "INR"
+      }
+    },
+    "investing_activities": {
+      "cash_inflows": [],
+      "cash_outflows": [
+        {"item": "Purchase of New Machinery", "amount": 50000, "currency": "INR"},
+        {"item": "Farm Building Improvement", "amount": 20000, "currency": "INR"}
+      ],
+      "net_cash_from_investing_activities": {
+        "amount": -70000,
+        "currency": "INR"
+      }
+    },
+    "financing_activities": {
+      "cash_inflows": [
+        {"source": "Obtained Short-term Loan", "amount": 80000, "currency": "INR"}
+      ],
+      "cash_outflows": [
+        {"item": "Loan Repayments (Principal & Interest)", "amount": 100000, "currency": "INR"}
+      ],
+      "net_cash_from_financing_activities": {
+        "amount": -20000,
+        "currency": "INR"
+      }
+    },
+    "net_increase_in_cash": {
+      "amount": 170000,
+      "currency": "INR"
+    },
+    "beginning_cash_balance": {
+      "amount": 15000,
+      "currency": "INR"
+    },
+    "ending_cash_balance": {
+      "amount": 185000,
+      "currency": "INR"
+    }
+  },
+  "key_financial_ratios": {
+    "profit_margin": "26.67%",
+    "debt_to_asset_ratio": "0.35",
+    "working_capital": {
+      "amount": 100000,
+      "currency": "INR"
+    }
+  }
+}
