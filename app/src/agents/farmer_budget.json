@@ -1,0 +1,32 @@
+{
+  "farmer_id": "FARM-2045",
+  "financial_status": {
+    "available_budget_in_inr": 125000,
+    "credit_limit_in_inr": 50000,
+    "current_debt_in_inr": 20000,
+    "risk_appetite": "Moderate",
+    "past_trade_performance": {
+      "total_trades": 15,
+      "successful_trades": 13,
+      "failed_trades": 2,
+      "average_profit_margin_percent": 12.5,
+      "last_season_profit_in_inr": 18000
+    },
+    "equipment_ownership": {
+      "tractor": true,
+      "irrigation_system": false,
+      "cold_storage": false,
+      "fertilizer_sprayer": true
+    },
+    "logistics_capability": {
+      "owns_transport_vehicle": false,
+      "can_rent_vehicle": true,
+      "max_delivery_radius_km": 50
+    },
+    "investment_flexibility": {
+      "can_invest_in_input_upgrade": true,
+      "can_invest_in_market_access_fee": true,
+      "can_invest_in_organic_certification": false
+    }
+  }
+}

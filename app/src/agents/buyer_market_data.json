@@ -1,0 +1,57 @@
+{
+  
+  "buyer_market_links": [
+    {
+      "market_name": "Delhi Wholesale Market",
+      "buyer_type": "Physical Buyer",
+      "product_categories": ["Paddy", "Millets"],
+      "reliability_score": 9.2,
+      "preferred_payment_terms": "Bank Transfer (7-day settlement)",
+      "farmer_selection_reason": "High volume bulk purchase, fair payment speed",
+      "financial_dependability": "Stable monthly returns",
+      "location": {
+        "latitude": 28.6139,
+        "longitude": 77.2090
+      }
+    },
+    {
+      "market_name": "Mumbai APMC Market",
+      "buyer_type": "Physical Buyer",
+      "product_categories": ["Milk", "Dairy"],
+      "reliability_score": 8.6,
+      "preferred_payment_terms": "Monthly Invoice",
+      "farmer_selection_reason": "Good dairy network, wide reach",
+      "financial_dependability": "Medium risk (delayed payments)",
+      "location": {
+        "latitude": 19.0760,
+        "longitude": 72.8777
+      }
+    },
+    {
+      "market_name": "Chennai Koyambedu Market",
+      "buyer_type": "Cooperative",
+      "product_categories": ["Grains", "Seeds"],
+      "reliability_score": 9.8,
+      "preferred_payment_terms": "Upfront & Credit mix",
+      "farmer_selection_reason": "Trusted local cooperative, good pricing",
+      "financial_dependability": "Highly stable",
+      "location": {
+        "latitude": 13.0710,
+        "longitude": 80.2170
+      }
+    },
+    {
+      "market_name": "Bengaluru Yeshwanthpur Market",
+      "buyer_type": "Online Buyer",
+      "product_categories": ["Sweet Corn", "Paddy"],
+      "onboarding_stage": "Profile Verified",
+      "trial_transaction_status": "Pending",
+      "farmer_selection_reason": "Digital outreach opportunity, test pricing",
+      "financial_dependability": "Trial phase",
+      "location": {
+        "latitude": 13.0285,
+        "longitude": 77.5406
+      }
+    }
+  ]
+}

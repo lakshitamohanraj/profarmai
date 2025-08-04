@@ -1,0 +1,132 @@
+{
+  "farmer_id": "FARMER-RAJESH-KUMAR-001",
+  "farmer_name": "Rajesh Kumar",
+  "farm_name": "Sunrise Homestead",
+  "location": "Kilmudalambedu, Tamil Nadu",
+  "market_relationships": {
+    "buyers": [
+      {
+        "market_name": "Delhi Wholesale Market",
+        "partner_type": "Buyer",
+        "partnership_since": "2021-06-01",
+        "product_categories": ["Paddy", "Millets"],
+        "preferred_payment_terms": "Bank Transfer (7-day settlement)",
+        "reliability_score": 9.2,
+        "location": {
+          "latitude": 28.6139,
+          "longitude": 77.2090
+        },
+        "buyer_feedback": "Consistent pricing, responsive communication"
+      },
+      {
+        "market_name": "Mumbai APMC Market",
+        "partner_type": "Buyer",
+        "partnership_since": "2023-03-20",
+        "product_categories": ["Milk", "Dairy"],
+        "preferred_payment_terms": "Monthly Invoice",
+        "reliability_score": 8.6,
+        "location": {
+          "latitude": 19.0760,
+          "longitude": 72.8777
+        },
+        "buyer_feedback": "Good volume demand, slow payment clearance"
+      },
+      {
+        "market_name": "Bengaluru Yeshwanthpur Market",
+        "partner_type": "Online Buyer",
+        "joined_on": "2025-05-15",
+        "products_listed": ["Sweet Corn", "Paddy"],
+        "trial_transaction_status": "Pending",
+        "onboarding_stage": "Profile Verified",
+        "location": {
+          "latitude": 13.0285,
+          "longitude": 77.5406
+        }
+      }
+    ],
+    "sellers": [
+      {
+        "market_name": "Chennai Koyambedu Market",
+        "partner_type": "Cooperative Seller",
+        "partnership_since": "2022-01-10",
+        "product_categories": ["Grains", "Seeds", "Fertilizers"],
+        "preferred_payment_terms": "Upfront & Credit mix",
+        "reliability_score": 9.8,
+        "location": {
+          "latitude": 13.0710,
+          "longitude": 80.2170
+        },
+        "seller_feedback": "Provides genuine seeds, good support on call"
+      },
+      {
+        "market_name": "GreenTech Equipments",
+        "partner_type": "Agri Equipment Supplier",
+        "equipment_provided": ["Tractor Model TX-500", "Power Sprayer PS-1200"],
+        "location": {
+          "latitude": 12.9716,
+          "longitude": 77.5946
+        },
+        "last_service_date": "2025-06-01",
+        "equipment_status": [
+          {
+            "item": "Tractor Model TX-500",
+            "status": "Working",
+            "feedback": "Recently serviced, working smoothly"
+          },
+          {
+            "item": "Power Sprayer PS-1200",
+            "status": "Minor Issue",
+            "feedback": "Spray nozzle occasionally leaks"
+          }
+        ]
+      },
+      {
+        "market_name": "AgriGrow Cooperative Society",
+        "partner_type": "Fertilizer & Chemical Seller",
+        "product_categories": ["NPK Fertilizer", "Bio-Pesticides"],
+        "preferred_payment_terms": "Immediate UPI",
+        "location": {
+          "latitude": 11.0168,
+          "longitude": 76.9558
+        },
+        "feedback": "Affordable rates, quick delivery"
+      }
+    ],
+    "transaction_history": [
+      {
+        "transaction_id": "TXN-2025-APR-001",
+        "date": "2025-04-20",
+        "market_name": "Chengalpattu Agricultural Wholesale Market",
+        "product": "Paddy",
+        "quantity_kg": 3000,
+        "price_per_kg": 25.5,
+        "total_value": 76500,
+        "transaction_type": "Sale",
+        "payment_status": "Completed"
+      },
+      {
+        "transaction_id": "TXN-2025-MAY-008",
+        "date": "2025-05-05",
+        "market_name": "FreshFoods Processing Pvt Ltd",
+        "product": "Milk",
+        "quantity_liters": 1200,
+        "price_per_liter": 24,
+        "total_value": 28800,
+        "transaction_type": "Sale",
+        "payment_status": "Pending"
+      },
+      {
+        "transaction_id": "TXN-2025-JUN-004",
+        "date": "2025-06-15",
+        "market_name": "AgriGrow Cooperative Society",
+        "product": "NPK Fertilizer",
+        "quantity_kg": 500,
+        "price_per_kg": 18,
+        "total_value": 9000,
+        "transaction_type": "Purchase",
+        "payment_status": "Completed"
+      }
+    ]
+  },
+  "remarks": "Exploring Bengaluru Yeshwanthpur Market for better pricing. Maintains strong ties with physical wholesale markets, cooperative sellers, and verified equipment suppliers."
+}

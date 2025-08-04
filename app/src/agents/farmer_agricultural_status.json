@@ -1,0 +1,107 @@
+{
+  "farm_id": "FARM-78901",
+  "farm_name": "Green Acres Farm",
+  "farmer_name": "Jane Doe",
+  "location": {
+    "latitude": 34.052235,
+    "longitude": -118.243683,
+    "address": {
+      "street": "123 Farm Lane",
+      "city": "Ruralville",
+      "state": "CA",
+      "zip_code": "90210",
+      "country": "USA"
+    }
+  },
+  "farm_size_acres": 150.75,
+  "crop_production": [
+    {
+      "crop_name": "Wheat",
+      "variety": "Winter Wheat Blend",
+      "season": "Winter 2024-2025",
+      "planting_date": "2024-10-15",
+      "harvest_date": "2025-07-01",
+      "field_number": "Field A",
+      "area_acres": 50.0,
+      "yield_per_acre_bushels": 65,
+      "soil_type": "Loamy Sand",
+      "irrigation_method": "Pivot Irrigation",
+      "fertilizer_applications": [
+        {
+          "type": "Organic Compost",
+          "date": "2024-11-01",
+          "amount_kg": 2000
+        },
+        {
+          "type": "Nitrogen Fertilizer",
+          "date": "2025-03-10",
+          "amount_kg": 500
+        }
+      ],
+      "pest_disease_status": {
+        "identified_issues": ["Wheat Rust (Minor)"],
+        "treatment_applied": "Fungicide Spray",
+        "treatment_date": "2025-04-05",
+        "status": "Under control"
+      },
+      "current_status": "Harvested"
+    },
+    {
+      "crop_name": "Corn",
+      "variety": "Sweet Corn Hybrid",
+      "season": "Summer 2025",
+      "planting_date": "2025-05-01",
+      "harvest_date": null,
+      "field_number": "Field B",
+      "area_acres": 75.5,
+      "yield_per_acre_bushels": null,
+      "soil_type": "Clay Loam",
+      "irrigation_method": "Drip Irrigation",
+      "fertilizer_applications": [
+        {
+          "type": "Balanced NPK Fertilizer",
+          "date": "2025-05-15",
+          "amount_kg": 750
+        }
+      ],
+      "pest_disease_status": {
+        "identified_issues": [],
+        "treatment_applied": null,
+        "treatment_date": null,
+        "status": "Healthy"
+      },
+      "current_status": "Growing"
+    }
+  ],
+  "livestock_production": [
+    {
+      "animal_type": "Cattle",
+      "breed": "Angus",
+      "count": 120,
+      "purpose": "Beef Production",
+      "health_status": {
+        "identified_issues": [],
+        "vaccinations": ["IBR", "BVD"],
+        "last_vaccination_date": "2025-01-20",
+        "status": "Healthy"
+      }
+    }
+  ],
+  "equipment": [
+    {
+      "equipment_type": "Tractor",
+      "make": "John Deere",
+      "model": "7930",
+      "last_maintenance_date": "2025-06-01",
+      "status": "Operational"
+    },
+    {
+      "equipment_type": "Combine Harvester",
+      "make": "Case IH",
+      "model": "Axial-Flow 7150",
+      "last_maintenance_date": "2024-09-10",
+      "status": "Awaiting pre-harvest service"
+    }
+  ],
+  "notes": "Planning to expand Field C for Soybean cultivation in the next season."
+}

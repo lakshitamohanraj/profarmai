@@ -1,0 +1,43 @@
+{
+
+  "seller_market_links": [
+    {
+      "market_name": "Chennai Koyambedu Market",
+      "seller_type": "Cooperative",
+      "product_categories": ["Fertilizers", "Seeds"],
+      "available_equipment": ["Hand Sprayer", "Seed Drill"],
+      "payment_terms": "Credit available for verified farmers",
+      "equipment_status": [
+        {
+          "equipment_name": "Hand Sprayer",
+          "condition": "Working",
+          "last_service_date": "2025-06-01",
+          "feedback": "Efficient for small land area"
+        },
+        {
+          "equipment_name": "Seed Drill",
+          "condition": "Needs maintenance",
+          "last_service_date": "2025-03-20",
+          "feedback": "Good for sowing but requires tuning"
+        }
+      ],
+      "farmer_preference_reason": "Nearby location, trustable seller, local support",
+      "location": {
+        "latitude": 13.0710,
+        "longitude": 80.2170
+      }
+    },
+    {
+      "market_name": "AgriGrow Cooperative Society",
+      "seller_type": "Private Supplier",
+      "product_categories": ["Fertilizers", "Pesticides"],
+      "payment_terms": "Full upfront",
+      "equipment_status": [],
+      "farmer_preference_reason": "Competitive rates for NPK fertilizers",
+      "location": {
+        "latitude": 12.9279,
+        "longitude": 79.1360
+      }
+    }
+  ]
+}
