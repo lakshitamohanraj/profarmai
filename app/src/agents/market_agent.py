@@ -19,7 +19,7 @@ load_dotenv()
 def create_weather_chain():
     llm = Ollama(model="tinyllama", temperature=0.7)
 
-    with open("D:\\accenture-hackathon\\profarmai\\app\\src\\prompts\\weather_prompt.txt", "r") as f:
+    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\weather_prompt.txt", "r") as f:
         prompt_template = f.read()
 
     prompt = PromptTemplate(
@@ -61,7 +61,7 @@ def get_memory(session_id: str):
 def get_market_analysis():
     # memory = get_memory(session_id)
     
-    with open("D:\\accenture-hackathon\\profarmai\\app\\src\\prompts\\market_research_agent.txt", "r") as f:
+    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\market_research_agent.txt", "r") as f:
         prompt_template = f.read()
 
     prompt = PromptTemplate(
@@ -70,15 +70,15 @@ def get_market_analysis():
     )
     
      # Load dummy JSON app\src\agents\buyer_market_data.json
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/buyer_market_data.json", "r") as wf:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/buyer_market_data.json", "r") as wf:
         buyer_data = json.load(wf)
 
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/seller_market_data.json", "r") as af:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/seller_market_data.json", "r") as af:
         seller_data = json.load(af)
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/farmer_market_relation.json", "r") as ff:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/farmer_market_relation.json", "r") as ff:
         farmer_market_data = json.load(ff)
         
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/farmer_profile.json", "r") as kf:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/farmer_profile.json", "r") as kf:
         farmer_profile = json.load(kf)
         
             
@@ -126,7 +126,7 @@ def get_market_related_risks():
     
     get_market_analysis()
     
-    with open("D:\\accenture-hackathon\\profarmai\\app\\src\\prompts\\weather_risk_mitigator.txt", "r") as f:
+    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\weather_risk_mitigator.txt", "r") as f:
         prompt_template = f.read()
 
     prompt = PromptTemplate(
@@ -135,10 +135,10 @@ def get_market_related_risks():
     )
     
      # Load dummy JSON
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/weather_analysis_output.json", "r") as wf:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json", "r") as wf:
         weather_analysis = json.load(wf)
     # app\src\agents\financial_memory_summary.json
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/financial_memory_summary.json", "r") as af:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/financial_memory_summary.json", "r") as af:
         finance_stats = json.load(af)
 
     # Convert to string
@@ -148,7 +148,7 @@ def get_market_related_risks():
 
     llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
-        model_name="llama3-8b-8192"
+    model_name="gemma2-9b-it",  # or whichever model you want
     )
      
     chain = LLMChain(

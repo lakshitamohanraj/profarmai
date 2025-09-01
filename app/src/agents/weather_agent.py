@@ -19,7 +19,7 @@ load_dotenv()
 def create_weather_chain():
     llm = Ollama(model="tinyllama", temperature=0.7)
 
-    with open("D:\\accenture-hackathon\\profarmai\\app\\src\\prompts\\weather_prompt.txt", "r") as f:
+    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\weather_prompt.txt", "r") as f:
         prompt_template = f.read()
 
     prompt = PromptTemplate(
@@ -61,7 +61,7 @@ def get_memory(session_id: str):
 def get_weather_analysis(weather_data_str,agri_status_str):
     # memory = get_memory(session_id)
     
-    with open("D:\\accenture-hackathon\\profarmai\\app\\src\\prompts\\weather_monitor_agent.txt", "r") as f:
+    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\weather_monitor_agent.txt", "r") as f:
         prompt_template = f.read()
 
     prompt = PromptTemplate(
@@ -96,7 +96,7 @@ def get_weather_analysis(weather_data_str,agri_status_str):
         "weather_data": weather_data_str,
         "farmer_agriculture_status":agri_status_str
         })
-    filename = "D:/accenture-hackathon/profarmai/app/src/agents/weather_analysis_output.json"
+    filename = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json"
     # print(type(response['text']))
     try:
         with open(filename, 'w') as json_file:
@@ -111,7 +111,7 @@ def get_weather_analysis(weather_data_str,agri_status_str):
 
 def get_weather_related_risks(weather_data_str,finance_status_str):
         
-    with open("D:\\accenture-hackathon\\profarmai\\app\\src\\prompts\\weather_risk_mitigator.txt", "r") as f:
+    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\weather_risk_mitigator.txt", "r") as f:
         prompt_template = f.read()
 
     prompt = PromptTemplate(
@@ -133,7 +133,7 @@ def get_weather_related_risks(weather_data_str,finance_status_str):
 
     llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
-        model_name="llama3-8b-8192"
+    model_name="gemma2-9b-it",  # or whichever model you want
     )
      
     chain = LLMChain(

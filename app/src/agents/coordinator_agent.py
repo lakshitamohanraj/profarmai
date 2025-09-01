@@ -64,12 +64,12 @@ def run(user_prompt: str, session_id: str):
 
     llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
-        model_name="llama3-8b-8192"
+    model_name="gemma2-9b-it",  # or whichever model you want
     )
  
     tools = [weather_analysis_tool,weather_risk_tool]
     
-    with open("D:\\accenture-hackathon\\profarmai\\app\\src\\prompts\\coordinator_prompt.txt", "r") as f:
+    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\coordinator_prompt.txt", "r") as f:
         prompt_text = f.read()
     
     agent = initialize_agent(
@@ -88,10 +88,10 @@ def run(user_prompt: str, session_id: str):
     return response
 
 def get_weather_and_agri_status(user_id:str):
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/weather_data.json", "r") as wf:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_data.json", "r") as wf:
         weather_data = json.load(wf)
 
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/farmer_agricultural_status.json", "r") as af:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/farmer_agricultural_status.json", "r") as af:
         agri_status = json.load(af)
 
     # Convert to string
@@ -100,17 +100,17 @@ def get_weather_and_agri_status(user_id:str):
     return weather_data_str,agri_status_str
 
 def get_weather_and_finance_status(user_id:str):
-    filepath="D:/accenture-hackathon/profarmai/app/src/agents/weather_analysis_output.json"
+    filepath="C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json"
     if not os.path.exists(filepath) or os.path.getsize(filepath) == 0:
         print(f"File '{filepath}' is empty or does not exist. Writing empty string.")
         with open(filepath, 'w') as f:
             f.write("")
         weather_analysis="Empty at the moment.."  # Return an empty string as per the requirement
     else:
-        with open("D:/accenture-hackathon/profarmai/app/src/agents/weather_analysis_output.json", "r") as wf:
+        with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json", "r") as wf:
             weather_analysis = json.load(wf)
     # app\src\agents\financial_memory_summary.json
-    with open("D:/accenture-hackathon/profarmai/app/src/agents/financial_memory_summary.json", "r") as af:
+    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/financial_memory_summary.json", "r") as af:
         finance_stats = json.load(af)
 
     # Convert to string
