@@ -10,6 +10,8 @@ from langchain_community.chat_message_histories import SQLChatMessageHistory
 # from langchain_community.chat_message_histories.sqlite import SQLiteChatMessageHistory
 from agents.weather_agent import get_weather_analysis,get_weather_related_risks
 from agents.market_agent import get_market_analysis
+from agents.rag_pipeline import local_rag_tool  # <--- import the RAG tool
+
 
 from dotenv import load_dotenv
 import os
@@ -35,7 +37,7 @@ def sample_conv(user_prompt: str, session_id: str):
 
     llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
-        model_name="llama3-8b-8192"
+        model_name="playai-tts"
     )
      
     conversation = ConversationChain(
@@ -64,14 +66,16 @@ def run(user_prompt: str, session_id: str):
 
     llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
-    model_name="gemma2-9b-it",  # or whichever model you want
+    model_name="meta-llama/llama-4-maverick-17b-128e-instruct",  # or whichever model you want
     )
  
-    tools = [weather_analysis_tool,weather_risk_tool]
+    tools = [weather_analysis_tool,weather_risk_tool,local_rag_tool ,weather_query_tool]
     
     with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\coordinator_prompt.txt", "r") as f:
         prompt_text = f.read()
     
+    weather_analysis_tool("default_user")  # or actual user_id
+
     agent = initialize_agent(
         tools=tools,
         llm=llm,
@@ -84,7 +88,11 @@ def run(user_prompt: str, session_id: str):
         }
     )
 
-    response = agent.run(user_prompt)
+    # Decide when to call RAG
+    if any(word in user_prompt.lower() for word in ["biradar", "millet", "swayam shakthi"]):
+        response = local_rag_tool.invoke(user_prompt)
+    else:
+        response = agent.run(user_prompt)
     return response
 
 def get_weather_and_agri_status(user_id:str):
@@ -123,17 +131,68 @@ def get_weather_and_finance_status(user_id:str):
 @tool
 def weather_analysis_tool(user_id:str) -> str:
     """Get weather forecast analysis for the farmer's agriculture"""
+    print(">>> Running weather_analysis_tool for user:", user_id)  # Debug
     weather_data, agri_status = get_weather_and_agri_status(user_id)
-    return get_weather_analysis(weather_data, agri_status)
+    result = get_weather_analysis(weather_data, agri_status)
+    print(">>> Finished weather_analysis_tool execution.")
+    return result
 
 @tool
 def weather_risk_tool(user_id:str) -> str:
     """Get weather risk forecast for the farmer's region and agriculture."""
     weather_data, finance_status = get_weather_and_finance_status(user_id)
-    return get_weather_analysis(weather_data, finance_status)
+    return get_weather_related_risks(weather_data, finance_status)
 
 @tool
 def market_recommendation_tool() -> str:
     """Get Buyer and Seller Market based analysis and possible opportunities shiftings or new partnerships"""
     return get_market_analysis()['text']
 
+import re
+
+@tool
+def weather_query_tool(user_query: str) -> str:
+    """Answer weather-related user queries using the stored weather analysis JSON."""
+    try:
+        filepath = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json"
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+
+        text = data.get("analysis_text", "")
+        inner_json = re.search(r"\{[\s\S]*\}", text)
+        if not inner_json:
+            return "Sorry, I couldn't find any structured weather analysis data."
+
+        analysis = json.loads(inner_json.group())
+
+        q = user_query.lower()
+        if "temperature" in q:
+            d = analysis.get("Most Important", {})
+            return f"Temperature: {d.get('temperature')}°C — {d.get('reason')}"
+        elif "humidity" in q:
+            d = analysis.get("Moderately Important", {})
+            return f"Humidity: {d.get('humidity')}% — {d.get('reason')}"
+        elif "wind" in q or "speed" in q:
+            d = analysis.get("Least Important", {})
+            return f"Wind speed: {d.get('wind_speed')} km/h — {d.get('reason')}"
+        else:
+            # If unsure, let the LLM interpret
+            from langchain_groq import ChatGroq
+            llm = ChatGroq(
+                groq_api_key=os.getenv("GROQ_API_KEY"),
+                model_name="meta-llama/llama-4-maverick-17b-128e-instruct",
+            )
+            context = json.dumps(analysis, indent=2)
+            prompt = f"""
+            Here is the latest weather analysis for the farm:
+
+            {context}
+
+            User question: {user_query}
+
+            Based on the above analysis, provide a concise answer.
+            """
+            return llm.invoke(prompt).text
+
+    except Exception as e:
+        return f"Error reading weather analysis: {e}"

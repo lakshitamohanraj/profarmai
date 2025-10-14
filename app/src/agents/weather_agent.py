@@ -83,7 +83,7 @@ def get_weather_analysis(weather_data_str,agri_status_str):
 
     llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
-        model_name="llama3-8b-8192"
+        model_name="meta-llama/llama-4-maverick-17b-128e-instruct"
     )
      
     chain = LLMChain(
@@ -98,12 +98,30 @@ def get_weather_analysis(weather_data_str,agri_status_str):
         })
     filename = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json"
     # print(type(response['text']))
+    # try:
+    #     with open(filename, 'w') as json_file:
+    #         json.dump(json.loads(response['text']), json_file, indent=4) # indent=4 for pretty printing
+    #     print(f"JSON file '{filename}' created successfully.")
+    # except IOError as e:
+    #     print(f"Error creating file: {e}")
     try:
+        text_output = response.get('text', '').strip()
+        if not text_output:
+            raise ValueError("Empty LLM response — nothing to save.")
+
+        try:
+            parsed_output = json.loads(text_output)  # Try to parse JSON
+        except json.JSONDecodeError:
+            print("⚠️ LLM output is not valid JSON, saving as plain text instead.")
+            parsed_output = {"analysis_text": text_output}
+
         with open(filename, 'w') as json_file:
-            json.dump(json.loads(response['text']), json_file, indent=4) # indent=4 for pretty printing
-        print(f"JSON file '{filename}' created successfully.")
-    except IOError as e:
-        print(f"Error creating file: {e}")
+            json.dump(parsed_output, json_file, indent=4)
+        print(f"✅ JSON file '{filename}' created successfully.")
+
+    except Exception as e:
+        print(f"❌ Error creating file: {e}")
+
         
     return response
 
