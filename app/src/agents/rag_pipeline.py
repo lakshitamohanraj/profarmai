@@ -1,83 +1,62 @@
 # =========================================
-# 📚 LOCAL RAG PIPELINE (Text + Ollama + Chroma)
+# 📚 RAG PIPELINE (Text + OpenAI + Chroma + PDF)
 # =========================================
-from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain_community.vectorstores import Chroma
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.tools import tool
+from PyPDF2 import PdfReader
 import os
 
 # ===============================
 # CONFIG
 # ===============================
-CHROMA_DB_PATH = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/local_chroma_db"
+CHROMA_DB_PATH = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/openai_chroma_db"
+PDF_PATH = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/Success-Stories-Farmers.pdf"
 
-# Your farmer success story text
-FARMER_TEXT = """
-Mr. Veer Shetty Biradar (44) is from Gangapur village, Jharasangam
-mandal, in Sangareddy district of Telangana State, India. He is a
-graduate and owns 13 acres of dryland and 5 acres of irrigated land.
-He grows sugarcane, chickpea, red gram, jowar, bajra, foxtail millet
-and finger millet.
-Once, while travelling to Maharashtra, Mr. Biradar could not get
-any food to eat and suffered from starvation as a result. He started
-thinking of producing food for the future generations after coming
-back from Maharashtra.
-He started growing millets and entered the field of value-added millet
-products under the technical guidance of Dr. C.L. Gowda, Deputy
-Director General, ICRISAT, and Dr. C.H. Ravindra Reddy, Director,
-MSSRF (M.S. Swaminathan Research Foundation), Jeypore, Odisha.
-One of the reasons for focusing on value added millet products is
-the emergence of lifestyle diseases among the urban population and
-prevalence of junk food consumption among the youth. Keeping
-all these factors in mind, in 2009, Mr. Biradar started a valueadded
-centre for millets in Huda Colony, Chandanagar, Hyderabad,
-Telangana, India, in the name of SS Bhavani Foods Pvt. Ltd. Within a
-span of seven years, his company developed 60 value-added millet
-products from sorghum, bajra, foxtail millet and finger millet.
-The Millet Man of Telangana
-He takes up millets in June-July with the onset of the south-west
-monsoon. He manages to get a good yield from millets (foxtail millet
-3-3.5 quintals/acre, bajra 4-5 quintals/acre, sorghum 4-5 quintals/
-acre and finger millet 4-5 quintals/acre) with proper management
-practices at the right time even though his village receives meagre
-rainfall.
-According to Mr. Biradar, millets are super foods for the future
-generation because the risk of pest and disease attack is comparatively
-low, except for bird damage. He believes a farmer and a jawan are
-the two eyes of our country. Keeping the farmer in mind, he started
-a Non-Governmental Organization (NGO) called Swayam Shakthi
-in Huda Colony, Chandanagar, Hyderabad. The NGO covers 1000
-farmers from 8 villages from Sangareddy district. The main purpose
-of the NGO is to disseminate timely information to farmers and take
-new technologies to the doorstep of the farming community.
-"""
+# Set your OpenAI API key (ensure you’ve set it in your environment)
+# e.g., setx OPENAI_API_KEY "your-api-key"
+from dotenv import load_dotenv
+load_dotenv()
+
+# ===============================
+# HELPER – Read PDF
+# ===============================
+def read_pdf_text(pdf_path: str) -> str:
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"❌ PDF not found: {pdf_path}")
+    reader = PdfReader(pdf_path)
+    text = ""
+    for page in reader.pages:
+        text += page.extract_text() + "\n"
+    return text.strip()
 
 # ===============================
 # CREATE OR LOAD VECTORSTORE
 # ===============================
-def create_or_load_vectorstore(text: str):
+def create_or_load_vectorstore(pdf_path: str):
     if not os.path.exists(CHROMA_DB_PATH):
         os.makedirs(CHROMA_DB_PATH, exist_ok=True)
+
+    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
 
     # Load existing DB if available
     if len(os.listdir(CHROMA_DB_PATH)) > 0:
         print("🔄 Loading existing Chroma vector database...")
-        embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
         vectordb = Chroma(persist_directory=CHROMA_DB_PATH, embedding_function=embedding_model)
         return vectordb
 
-    print("📄 Creating new vector database from text...")
+    print("📄 Creating new vector database from PDF...")
 
-    # Split text into chunks
+    # Read and split text
+    text = read_pdf_text(pdf_path)
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=500,
         chunk_overlap=50
     )
     chunks = text_splitter.split_text(text)
 
-    embedding_model = OllamaEmbeddings(model="mxbai-embed-large")
     vectordb = Chroma.from_texts(
         texts=chunks,
         embedding=embedding_model,
@@ -88,22 +67,21 @@ def create_or_load_vectorstore(text: str):
     return vectordb
 
 # ===============================
-# LOCAL RAG TOOL
+# RAG TOOL
 # ===============================
 @tool
-def local_rag_tool(query: str) -> str:
+def openai_rag_tool(query: str) -> str:
     """
-    Answer questions ONLY about farmer success stories (e.g., Mr. Biradar, millets, NGO work).
-    Example questions:
-    - Tell me a story about Mr. Biradar
-    - What crops does the Millet Man grow?
+    Answer questions about farmer success stories from the PDF.
+    Example:
+    - Who is the Millet Man of Telangana?
+    - What crops do the farmers grow?
     """
     try:
-        vectordb = create_or_load_vectorstore(FARMER_TEXT)
+        vectordb = create_or_load_vectorstore(PDF_PATH)
         retriever = vectordb.as_retriever(search_kwargs={"k": 5})
 
-        # Ollama local LLM
-        llm = OllamaLLM(model="llama3.2:1b")
+        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
@@ -125,6 +103,6 @@ def local_rag_tool(query: str) -> str:
 # TEST
 # ===============================
 if __name__ == "__main__":
-    query = input("Ask a question about the farmer story: ")
-    answer = local_rag_tool.invoke(query)
+    query = input("Ask a question about the farmer success stories: ")
+    answer = openai_rag_tool.invoke(query)
     print("🤖 Answer:", answer)

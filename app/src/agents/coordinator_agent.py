@@ -74,7 +74,7 @@ def run(user_prompt: str, session_id: str):
     with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\coordinator_prompt.txt", "r") as f:
         prompt_text = f.read()
     
-    weather_analysis_tool("default_user")  # or actual user_id
+    #weather_analysis_tool("default_user")  # or actual user_id
 
     agent = initialize_agent(
         tools=tools,

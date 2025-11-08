@@ -214,6 +214,13 @@ def get_all_farms():
     farms = cursor.fetchall()
     conn.close()
     return [dict(farm) for farm in farms]
+def get_farms_by_user(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM farm WHERE user_id = ?", (user_id,))
+    farms = cursor.fetchall()
+    conn.close()
+    return [dict(farm) for farm in farms]
 def add_farm(farm):
     conn = get_connection()
     cursor = conn.cursor()
@@ -267,6 +274,19 @@ def add_equipment(equipment):
     conn.commit()
     conn.close()
     return {"message": "Equipment added successfully"}
+
+def get_equipment_by_user(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM equipment WHERE user_id = ?", (user_id,))
+    equipment = cursor.fetchall()
+    conn.close()
+    return [dict(e) for e in equipment]
+
+
+
+
+
 # CROP PRODUCTION
 def get_all_crops():
     conn = get_connection()
@@ -296,6 +316,14 @@ def add_crop(crop):
     conn.commit()
     conn.close()
     return {"message": "Crop added successfully"}
+def get_crops_by_user(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM crop_production WHERE user_id = ?", (user_id,))
+    crops = cursor.fetchall()
+    conn.close()
+    return [dict(c) for c in crops]
+
 def get_all_livestock():
     conn = get_connection()
     cursor = conn.cursor()
@@ -317,3 +345,103 @@ def add_livestock(livestock):
     conn.commit()
     conn.close()
     return {"message": "Livestock added successfully"}
+
+def get_livestock_by_user(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM livestock_production WHERE user_id = ?", (user_id,))
+    livestock = cursor.fetchall()
+    conn.close()
+    return [dict(l) for l in livestock]
+
+
+
+
+
+
+# ----------------------------
+# SELLER MARKET LINK Helpers
+# ----------------------------
+def get_all_seller_market_links():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM seller_market_link")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(zip([d[0] for d in cursor.description], row)) for row in rows]
+
+def get_seller_market_link_by_user(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM seller_market_link WHERE user_id = ?", (user_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(zip([d[0] for d in cursor.description], row)) for row in rows]
+
+def add_seller_market_link(data):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO seller_market_link (
+            user_id, market_name, seller_type, product_categories, available_equipment,
+            payment_terms, equipment_status, farmer_preference_reason, latitude, longitude
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        data.get("user_id"),
+        data.get("market_name"),
+        data.get("seller_type"),
+        data.get("product_categories"),
+        data.get("available_equipment"),
+        data.get("payment_terms"),
+        data.get("equipment_status"),
+        data.get("farmer_preference_reason"),
+        data.get("latitude"),
+        data.get("longitude"),
+    ))
+    conn.commit()
+    conn.close()
+    return {"message": "Seller market link added successfully"}
+
+
+# ----------------------------
+# FARM BUDGET Helpers
+# ----------------------------
+def get_all_farm_budgets():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM farm_budget")
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(zip([d[0] for d in cursor.description], row)) for row in rows]
+
+def get_farm_budget_by_user(user_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM farm_budget WHERE user_id = ?", (user_id,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(zip([d[0] for d in cursor.description], row)) for row in rows]
+
+def add_farm_budget(data):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO farm_budget (
+            user_id, available_budget_in_inr, credit_limit_in_inr, current_debt_in_inr,
+            risk_appetite, past_trade_performance, equipment_ownership,
+            logistics_capability, investment_flexibility
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        data.get("user_id"),
+        data.get("available_budget_in_inr"),
+        data.get("credit_limit_in_inr"),
+        data.get("current_debt_in_inr"),
+        data.get("risk_appetite"),
+        data.get("past_trade_performance"),
+        data.get("equipment_ownership"),
+        data.get("logistics_capability"),
+        data.get("investment_flexibility"),
+    ))
+    conn.commit()
+    conn.close()
+    return {"message": "Farm budget added successfully"}
