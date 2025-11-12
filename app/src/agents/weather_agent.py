@@ -4,7 +4,9 @@ from langchain.llms import Ollama
 import json
 
 
-from langchain_groq import ChatGroq
+#from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
@@ -81,10 +83,16 @@ def get_weather_analysis(weather_data_str,agri_status_str):
     # agri_status_str = json.dumps(agri_status, indent=2)
     
 
-    llm = ChatGroq(
+    '''llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
         model_name="meta-llama/llama-4-maverick-17b-128e-instruct"
-    )
+    )'''
+    llm = ChatOpenAI(
+    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    model_name="gpt-4o-mini",  # or "gpt-4o" / "gpt-4.1"
+    temperature=0.7
+)
+
      
     chain = LLMChain(
         llm=llm,
@@ -149,10 +157,16 @@ def get_weather_related_risks(weather_data_str,finance_status_str):
     # finance_status_str = json.dumps(finance_stats, indent=2)
     
 
-    llm = ChatGroq(
+    '''llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
     model_name="gemma2-9b-it",  # or whichever model you want
-    )
+    )'''
+    llm = ChatOpenAI(
+    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    model_name="gpt-4o-mini",  # or "gpt-4o" / "gpt-4.1"
+    temperature=0.7
+)
+
      
     chain = LLMChain(
         llm=llm,

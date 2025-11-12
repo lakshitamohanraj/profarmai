@@ -1,4 +1,6 @@
-from langchain_groq import ChatGroq
+#from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
@@ -11,6 +13,9 @@ from langchain_community.chat_message_histories import SQLChatMessageHistory
 from agents.weather_agent import get_weather_analysis,get_weather_related_risks
 from agents.market_agent import get_market_analysis
 from agents.rag_pipeline import local_rag_tool  # <--- import the RAG tool
+import sqlite3
+
+
 
 
 from dotenv import load_dotenv
@@ -49,7 +54,7 @@ def sample_conv(user_prompt: str, session_id: str):
     response = conversation.run(user_prompt)
     return response
 
-def get_coordinator_memory(session_id:str):
+'''def get_coordinator_memory(session_id:str):
     message_history = SQLChatMessageHistory(
         session_id=session_id,
         connection_string="sqlite:///mydatabase.db" # sqlite///:memory.db
@@ -59,15 +64,70 @@ def get_coordinator_memory(session_id:str):
         chat_memory=message_history,
         return_messages=True
     )
-    return memory
+    return memory'''
+def get_coordinator_memory(session_id: str):
+    message_history = SQLChatMessageHistory(
+        session_id=session_id,
+        connection_string="sqlite:///mydatabase.db"
+    )
+
+    #Fetch personalized context from your other tables
+    conn = sqlite3.connect("mydatabase.db")
+    cursor = conn.cursor()
+    user_data = {}
+
+    tables = ["farm", "crop_production", "equipment", "livestock_production", "farm_budget"]
+
+    print("\n=== Fetching Context for User:", session_id, "===")
+    for table in tables:
+        try:
+            cursor.execute(f"SELECT * FROM {table} WHERE user_id=?", (session_id,))
+            rows = cursor.fetchall()
+
+            # Get column names so you can see proper keys instead of tuple indexes
+            col_names = [desc[0] for desc in cursor.description]
+
+            formatted_rows = [dict(zip(col_names, row)) for row in rows]
+            user_data[table] = formatted_rows
+
+            print(f"\n📘 Table: {table}")
+            if formatted_rows:
+                for row in formatted_rows:
+                    print(row)
+            else:
+                print("⚠️ No records found for this user.")
+        except Exception as e:
+            print(f" Error reading table {table}: {e}")
+
+
+    conn.close()
+
+    #  Create a single long context string
+    context_str = json.dumps(user_data, indent=2)
+
+    memory = ConversationBufferMemory(
+        memory_key="chat_history",
+        chat_memory=message_history,
+        return_messages=True,
+        additional_kwargs={"user_context": context_str}  # 👈 custom context
+    )
+    return memory, context_str
+
 
 def run(user_prompt: str, session_id: str):
-    memory = get_coordinator_memory(session_id)
+    #memory = get_coordinator_memory(session_id)
+    memory, context_str = get_coordinator_memory(session_id)
 
-    llm = ChatGroq(
+    '''llm = ChatGroq(
         groq_api_key=os.getenv("GROQ_API_KEY"),
     model_name="meta-llama/llama-4-maverick-17b-128e-instruct",  # or whichever model you want
-    )
+    )'''
+    llm = ChatOpenAI(
+    openai_api_key=os.getenv("OPENAI_API_KEY"),
+    model_name="gpt-4o-mini",  # or "gpt-4o" / "gpt-4.1"
+    temperature=0.7
+)
+
  
     tools = [weather_analysis_tool,weather_risk_tool,local_rag_tool ,weather_query_tool]
     
@@ -75,6 +135,8 @@ def run(user_prompt: str, session_id: str):
         prompt_text = f.read()
     
     #weather_analysis_tool("default_user")  # or actual user_id
+    prompt_text += f"\n\nHere is the user's current farm context (for reference):\n{context_str}\n"
+
 
     agent = initialize_agent(
         tools=tools,
@@ -89,10 +151,21 @@ def run(user_prompt: str, session_id: str):
     )
 
     # Decide when to call RAG
-    if any(word in user_prompt.lower() for word in ["biradar", "millet", "swayam shakthi"]):
+    '''if any(word in user_prompt.lower() for word in ["biradar", "millet", "swayam shakthi"]):
         response = local_rag_tool.invoke(user_prompt)
     else:
-        response = agent.run(user_prompt)
+        response = agent.run(user_prompt)'''
+    response = agent.run(user_prompt)
+    contextual_prompt = f"""
+    Here is background information about the user (for reference only, do not repeat verbatim):
+
+    {context_str}
+
+    Now, respond to the following user query based on that data:
+    {user_prompt}
+    """
+    response = agent.run(contextual_prompt)
+
     return response
 
 def get_weather_and_agri_status(user_id:str):
@@ -152,18 +225,23 @@ import re
 
 @tool
 def weather_query_tool(user_query: str) -> str:
-    """Answer weather-related user queries using the stored weather analysis JSON."""
+    """Answer weather-related user queries and temperature , humidity queries using the stored weather analysis JSON."""
     try:
         filepath = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json"
         with open(filepath, 'r') as f:
             data = json.load(f)
 
-        text = data.get("analysis_text", "")
-        inner_json = re.search(r"\{[\s\S]*\}", text)
-        if not inner_json:
-            return "Sorry, I couldn't find any structured weather analysis data."
-
-        analysis = json.loads(inner_json.group())
+        if "Most Important" in data:
+            analysis = data
+        else:
+            text = data.get("analysis_text", "")
+            try:
+                analysis = json.loads(text)
+            except Exception:
+                inner_json = re.search(r"\{[\s\S]*\}", text)
+                if not inner_json:
+                    return "Sorry, I couldn't find any structured weather analysis data."
+                analysis = json.loads(inner_json.group())
 
         q = user_query.lower()
         if "temperature" in q:
@@ -178,10 +256,15 @@ def weather_query_tool(user_query: str) -> str:
         else:
             # If unsure, let the LLM interpret
             from langchain_groq import ChatGroq
-            llm = ChatGroq(
+            '''llm = ChatGroq(
                 groq_api_key=os.getenv("GROQ_API_KEY"),
                 model_name="meta-llama/llama-4-maverick-17b-128e-instruct",
-            )
+            )'''
+            llm = ChatOpenAI(
+            openai_api_key=os.getenv("OPENAI_API_KEY"),
+            model_name="gpt-4o-mini",  # or "gpt-4o" / "gpt-4.1"
+            temperature=0.7)
+
             context = json.dumps(analysis, indent=2)
             prompt = f"""
             Here is the latest weather analysis for the farm:

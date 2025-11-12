@@ -31,7 +31,37 @@ def read_pdf_text(pdf_path: str) -> str:
     for page in reader.pages:
         text += page.extract_text() + "\n"
     return text.strip()
+# ===============================
+# INITIALIZE VECTORSTORE (ONCE)
+# ===============================
+def initialize_vectorstore() -> Chroma:
+    """Creates or loads a persistent Chroma vector database."""
+    if not os.path.exists(CHROMA_DB_PATH):
+        os.makedirs(CHROMA_DB_PATH, exist_ok=True)
 
+    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+
+    # If Chroma DB already exists — just load it
+    if len(os.listdir(CHROMA_DB_PATH)) > 0:
+        print("🔄 Loading existing Chroma vector database...")
+        return Chroma(persist_directory=CHROMA_DB_PATH, embedding_function=embedding_model)
+
+    # Otherwise, create new DB
+    print("📄 Creating new vector database from PDF...")
+    text = read_pdf_text(PDF_PATH)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    chunks = text_splitter.split_text(text)
+
+    vectordb = Chroma.from_texts(
+        texts=chunks,
+        embedding=embedding_model,
+        persist_directory=CHROMA_DB_PATH
+    )
+    print("✅ Vector DB created and saved!")
+    return vectordb
+
+GLOBAL_VECTORDb = initialize_vectorstore()
+'''
 # ===============================
 # CREATE OR LOAD VECTORSTORE
 # ===============================
@@ -65,23 +95,25 @@ def create_or_load_vectorstore(pdf_path: str):
 
     print("✅ Vector DB created and saved!")
     return vectordb
-
+'''
 # ===============================
 # RAG TOOL
 # ===============================
 @tool
-def openai_rag_tool(query: str) -> str:
+def local_rag_tool(query: str) -> str:
     """
-    Answer questions about farmer success stories from the PDF.
-    Example:
-    - Who is the Millet Man of Telangana?
-    - What crops do the farmers grow?
+    Use this tool when the user asks questions about **Indian farmers,
+    success stories, case studies, sustainable agriculture practices, 
+    crop yields, or individual farmer achievements** that are stored in a local PDF.
     """
     try:
-        vectordb = create_or_load_vectorstore(PDF_PATH)
-        retriever = vectordb.as_retriever(search_kwargs={"k": 5})
+        retriever = GLOBAL_VECTORDb.as_retriever(search_kwargs={"k": 5})
 
-        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.3)
+        llm = ChatOpenAI(
+            model="gpt-4o-mini",
+            temperature=0.3,
+            openai_api_key=os.getenv("OPENAI_API_KEY")
+        )
 
         qa_chain = RetrievalQA.from_chain_type(
             llm=llm,
@@ -98,6 +130,7 @@ def openai_rag_tool(query: str) -> str:
 
     except Exception as e:
         return f"❌ Error in RAG pipeline: {str(e)}"
+
 
 # ===============================
 # TEST

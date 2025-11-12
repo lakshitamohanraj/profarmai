@@ -3,6 +3,8 @@ from agents.coordinator_agent import run, sample_conv, get_weather_and_agri_stat
 # from agents.market_agent import run
 from agents.weather_agent import get_weather_analysis,get_weather_related_risks
 from agents.market_agent import get_market_analysis
+from agents.fetch_weather_data import fetch_and_store_weather_data,get_location_from_ip
+
 from flask_cors import CORS
 import json
 from models import dbhelper
@@ -19,18 +21,30 @@ CORS(
     methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"]
 )
+WEATHER_JSON_PATH = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_data.json"
 
 def initialize_weather_data():
-    """Precompute weather analysis at app startup."""
+    """Fetch latest weather and run initial analysis."""
     try:
-        print("🌦️ Initializing weather analysis data at startup...")
+        print("🌦️ Fetching live weather data at startup...")
+        lat, lon = get_location_from_ip()# example: Chennai coordinates
+        api_key = "39a396553fba4aebbba64779bb22948d"
+
+        # Step 1: Fetch and save the live weather data
+        data = fetch_and_store_weather_data(lat, lon, api_key, WEATHER_JSON_PATH)
+        if not data:
+            print("⚠️ Weather data not fetched, skipping analysis.")
+            return
+
+        # Step 2: Run weather + agri analysis (your existing functions)
         weather_data_str, agri_status_str = get_weather_and_agri_status("default_user")
         get_weather_analysis(weather_data_str, agri_status_str)
-        print("✅ Weather data initialized and cached successfully.")
+
+        print("✅ Weather data fetched, analyzed, and cached successfully.")
     except Exception as e:
         print(f"❌ Failed to initialize weather data: {e}")
 
-# Run it in background so Flask doesn’t block startup
+# Run it in a background thread
 threading.Thread(target=initialize_weather_data, daemon=True).start()
 
 @app.route("/coordinator", methods=["POST"])
