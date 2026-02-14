@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from datetime import datetime
 
 # Path to DB (relative to this file)
 DB_PATH = Path(__file__).resolve().parent.parent / "mydatabase.db"
@@ -20,7 +21,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )
     ''')
@@ -186,23 +187,23 @@ def init_db():
     conn.commit()
     conn.close()
 
-def create_user(username, password):
+def create_user(email, password):
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, password))
         conn.commit()
         user_id = cursor.lastrowid  # return inserted user ID
         return user_id
     except sqlite3.IntegrityError:
-        return False  # username already exists
+        return False  # email already exists
     finally:
         conn.close()
 
-def get_user(username):
+def get_user(email):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
     user = cursor.fetchone()
     conn.close()
     return user
@@ -445,3 +446,842 @@ def add_farm_budget(data):
     conn.commit()
     conn.close()
     return {"message": "Farm budget added successfully"}
+
+# Finance Records Helpers
+# fetch all by user id
+def get_finance_records_by_user(user_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM finance_records WHERE user_id = ?", (user_id,))
+        rows = cursor.fetchall()
+        columns = [d[0] for d in cursor.description]
+        return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def delete_finance_record(record_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM finance_records WHERE id = ?", (record_id,))
+        conn.commit()
+        deleted_rows = cursor.rowcount
+
+        if deleted_rows == 0:
+            return {"message": f"No record found with ID {record_id}."}
+        else:
+            return {"message": f"Finance record (ID: {record_id}) deleted successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_finance_record(data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            INSERT INTO finance_records (
+                user_id, transaction_date, transaction_type, category,
+                amount, description, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            data.get("user_id"),
+            data.get("transaction_date"),
+            data.get("transaction_type"),
+            data.get("category"),
+            data.get("amount"),
+            data.get("description"),
+            datetime.now(),
+            datetime.now(),
+        ))
+        conn.commit()
+        return {"message": "Finance record added successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_finance_record(record_id, data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            UPDATE finance_records
+            SET user_id = ?,
+                transaction_date = ?,
+                transaction_type = ?,
+                category = ?,
+                amount = ?,
+                description = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (
+            data.get("user_id"),
+            data.get("transaction_date"),
+            data.get("transaction_type"),
+            data.get("category"),
+            data.get("amount"),
+            data.get("description"),
+            datetime.now(),
+            record_id,
+        ))
+        conn.commit()
+        return {"message": f"Finance record (ID: {record_id}) updated successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+            
+            
+            
+# -------------------------------
+# CROP RECORDS CRUD HELPERS
+# -------------------------------
+
+def get_crop_records_by_user(user_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM crop_records WHERE user_id = ?", (user_id,))
+        rows = cursor.fetchall()
+        columns = [d[0] for d in cursor.description]
+        return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def delete_crop_record(record_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM crop_records WHERE id = ?", (record_id,))
+        conn.commit()
+        deleted_rows = cursor.rowcount
+
+        if deleted_rows == 0:
+            return {"message": f"No crop record found with ID {record_id}."}
+        else:
+            return {"message": f"Crop record (ID: {record_id}) deleted successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_crop_record(data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            INSERT INTO crop_records (
+                user_id, crop_name, variety, planting_date, expected_harvest_date,
+                actual_harvest_date, field_size_acres, yield_amount, yield_unit,
+                status, notes, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            data.get("user_id"),
+            data.get("crop_name"),
+            data.get("variety"),
+            data.get("planting_date"),
+            data.get("expected_harvest_date"),
+            data.get("actual_harvest_date"),
+            data.get("field_size_acres"),
+            data.get("yield_amount"),
+            data.get("yield_unit"),
+            data.get("status"),
+            data.get("notes"),
+            datetime.now(),
+            datetime.now(),
+        ))
+        conn.commit()
+        return {"message": "Crop record added successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_crop_record(record_id, data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            UPDATE crop_records
+            SET user_id = ?,
+                crop_name = ?,
+                variety = ?,
+                planting_date = ?,
+                expected_harvest_date = ?,
+                actual_harvest_date = ?,
+                field_size_acres = ?,
+                yield_amount = ?,
+                yield_unit = ?,
+                status = ?,
+                notes = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (
+            data.get("user_id"),
+            data.get("crop_name"),
+            data.get("variety"),
+            data.get("planting_date"),
+            data.get("expected_harvest_date"),
+            data.get("actual_harvest_date"),
+            data.get("field_size_acres"),
+            data.get("yield_amount"),
+            data.get("yield_unit"),
+            data.get("status"),
+            data.get("notes"),
+            datetime.now(),
+            record_id,
+        ))
+        conn.commit()
+        return {"message": f"Crop record (ID: {record_id}) updated successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+# -------------------------------
+# LIVESTOCK RECORDS CRUD HELPERS
+# -------------------------------
+
+def get_livestock_records_by_user(user_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM livestock_records WHERE user_id = ?", (user_id,))
+        rows = cursor.fetchall()
+        columns = [d[0] for d in cursor.description]
+        return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def delete_livestock_record(record_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM livestock_records WHERE id = ?", (record_id,))
+        conn.commit()
+        deleted_rows = cursor.rowcount
+
+        if deleted_rows == 0:
+            return {"message": f"No livestock record found with ID {record_id}."}
+        else:
+            return {"message": f"Livestock record (ID: {record_id}) deleted successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_livestock_record(data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            INSERT INTO livestock_records (
+                user_id, animal_type, breed, count, age_group, health_status,
+                weight_lbs, location, notes, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            data.get("user_id"),
+            data.get("animal_type"),
+            data.get("breed"),
+            data.get("count"),
+            data.get("age_group"),
+            data.get("health_status"),
+            data.get("weight_lbs"),
+            data.get("location"),
+            data.get("notes"),
+            datetime.now(),
+            datetime.now(),
+        ))
+        conn.commit()
+        return {"message": "Livestock record added successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_livestock_record(record_id, data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            UPDATE livestock_records
+            SET user_id = ?,
+                animal_type = ?,
+                breed = ?,
+                count = ?,
+                age_group = ?,
+                health_status = ?,
+                weight_lbs = ?,
+                location = ?,
+                notes = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (
+            data.get("user_id"),
+            data.get("animal_type"),
+            data.get("breed"),
+            data.get("count"),
+            data.get("age_group"),
+            data.get("health_status"),
+            data.get("weight_lbs"),
+            data.get("location"),
+            data.get("notes"),
+            datetime.now(),
+            record_id,
+        ))
+        conn.commit()
+        return {"message": f"Livestock record (ID: {record_id}) updated successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+# -------------------------------
+# EQUIPMENT RECORDS CRUD HELPERS
+# -------------------------------
+
+def get_equipment_records_by_user(user_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM equipment_records WHERE user_id = ?", (user_id,))
+        rows = cursor.fetchall()
+        columns = [d[0] for d in cursor.description]
+        return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def delete_equipment_record(record_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM equipment_records WHERE id = ?", (record_id,))
+        conn.commit()
+        deleted_rows = cursor.rowcount
+
+        if deleted_rows == 0:
+            return {"message": f"No equipment record found with ID {record_id}."}
+        else:
+            return {"message": f"Equipment record (ID: {record_id}) deleted successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_equipment_record(data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            INSERT INTO equipment_records (
+                user_id, equipment_type, make, model, year, status,
+                last_service_date, notes, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            data.get("user_id"),
+            data.get("equipment_type"),
+            data.get("make"),
+            data.get("model"),
+            data.get("year"),
+            data.get("status"),
+            data.get("last_service_date"),
+            data.get("notes"),
+            datetime.now(),
+            datetime.now(),
+        ))
+        conn.commit()
+        return {"message": "Equipment record added successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_equipment_record(record_id, data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            UPDATE equipment_records
+            SET user_id = ?,
+                equipment_type = ?,
+                make = ?,
+                model = ?,
+                year = ?,
+                status = ?,
+                last_service_date = ?,
+                notes = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (
+            data.get("user_id"),
+            data.get("equipment_type"),
+            data.get("make"),
+            data.get("model"),
+            data.get("year"),
+            data.get("status"),
+            data.get("last_service_date"),
+            data.get("notes"),
+            datetime.now(),
+            record_id,
+        ))
+        conn.commit()
+        return {"message": f"Equipment record (ID: {record_id}) updated successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+            
+            
+            
+# -------------------------------
+# MARKET SELLERS CRUD HELPERS
+# -------------------------------
+
+def get_marketseller_records_by_user(user_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM market_sellers WHERE user_id = ?", (user_id,))
+        rows = cursor.fetchall()
+        columns = [d[0] for d in cursor.description]
+        return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def delete_marketseller_record(record_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM market_sellers WHERE id = ?", (record_id,))
+        conn.commit()
+        deleted_rows = cursor.rowcount
+
+        if deleted_rows == 0:
+            return {"message": f"No market seller record found with ID {record_id}."}
+        else:
+            return {"message": f"Market seller record (ID: {record_id}) deleted successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_marketseller_record(data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            INSERT INTO market_sellers (
+                user_id, seller_name, item_name, quantity, unit,
+                price_per_unit, contact_info, location, listed_date,
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            data.get("user_id"),
+            data.get("seller_name"),
+            data.get("item_name"),
+            data.get("quantity"),
+            data.get("unit"),
+            data.get("price_per_unit"),
+            data.get("contact_info"),
+            data.get("location"),
+            data.get("listed_date"),
+            datetime.now(),
+            datetime.now(),
+        ))
+        conn.commit()
+        return {"message": "Market seller record added successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_marketseller_record(record_id, data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            UPDATE market_sellers
+            SET user_id = ?,
+                seller_name = ?,
+                item_name = ?,
+                quantity = ?,
+                unit = ?,
+                price_per_unit = ?,
+                contact_info = ?,
+                location = ?,
+                listed_date = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (
+            data.get("user_id"),
+            data.get("seller_name"),
+            data.get("item_name"),
+            data.get("quantity"),
+            data.get("unit"),
+            data.get("price_per_unit"),
+            data.get("contact_info"),
+            data.get("location"),
+            data.get("listed_date"),
+            datetime.now(),
+            record_id,
+        ))
+        conn.commit()
+        return {"message": f"Market seller record (ID: {record_id}) updated successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+            
+            
+# -------------------------------
+# MARKET BUYER RECORDS CRUD HELPERS
+# -------------------------------
+
+def get_marketbuyer_records_by_user(user_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM market_buyers WHERE user_id = ?", (user_id,))
+        rows = cursor.fetchall()
+        columns = [d[0] for d in cursor.description]
+        return [dict(zip(columns, row)) for row in rows]
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def delete_marketbuyer_record(record_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM market_buyers WHERE id = ?", (record_id,))
+        conn.commit()
+        deleted_rows = cursor.rowcount
+
+        if deleted_rows == 0:
+            return {"message": f"No market buyer record found with ID {record_id}."}
+        else:
+            return {"message": f"Market buyer record (ID: {record_id}) deleted successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def add_marketbuyer_record(data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            INSERT INTO market_buyers (
+                user_id, buyer_name, item_name, quantity, unit,
+                price_paid, contact_info, purchase_date, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            data.get("user_id"),
+            data.get("buyer_name"),
+            data.get("item_name"),
+            data.get("quantity"),
+            data.get("unit"),
+            data.get("price_paid"),
+            data.get("contact_info"),
+            data.get("purchase_date"),
+            datetime.now(),
+            datetime.now(),
+        ))
+        conn.commit()
+        return {"message": "Market buyer record added successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_marketbuyer_record(record_id, data):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+        cursor.execute("""
+            UPDATE market_buyers
+            SET user_id = ?,
+                buyer_name = ?,
+                item_name = ?,
+                quantity = ?,
+                unit = ?,
+                price_paid = ?,
+                contact_info = ?,
+                purchase_date = ?,
+                updated_at = ?
+            WHERE id = ?
+        """, (
+            data.get("user_id"),
+            data.get("buyer_name"),
+            data.get("item_name"),
+            data.get("quantity"),
+            data.get("unit"),
+            data.get("price_paid"),
+            data.get("contact_info"),
+            data.get("purchase_date"),
+            datetime.now(),
+            record_id,
+        ))
+        conn.commit()
+        return {"message": f"Market buyer record (ID: {record_id}) updated successfully."}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+# Financial Summary Helpers
+def get_financial_summary_by_user(user_id):
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT transaction_type, amount FROM finance_records WHERE user_id = ?
+        """, (user_id,))
+        rows = cursor.fetchall()
+        conn.close()
+        income = sum(r[1] for r in rows if r[0] == "income")
+        expense = sum(r[1] for r in rows if r[0] == "expense")
+        balance = income - expense
+        return {"income": income, "expense": expense, "balance": balance}
+       
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+            
+            
+            
+# -------------------------------
+# FARMER PROFILE CRUD HELPERS
+# -------------------------------
+
+def get_farmer_profile_by_user(user_id):
+    """Fetch a single farmer profile by user_id"""
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM farmer_profiles WHERE user_id = ?", (user_id,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        columns = [d[0] for d in cursor.description]
+        return dict(zip(columns, row))
+    except Exception as e:
+        raise e
+    finally:
+        if conn:
+            conn.close()
+
+
+def update_farmer_profile(data, user_id):
+    """Insert or update a farmer profile (upsert behavior)"""
+    conn = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA foreign_keys = ON;")
+
+        # Check if the profile already exists
+        cursor.execute("SELECT id FROM farmer_profiles WHERE user_id = ?", (user_id,))
+        existing = cursor.fetchone()
+
+        if existing:
+            # ✅ Update existing profile
+            cursor.execute("""
+                UPDATE farmer_profiles
+                SET farm_name = ?,
+                    latitude = ?,
+                    longitude = ?,
+                    street = ?,
+                    city = ?,
+                    state = ?,
+                    zip_code = ?,
+                    country = ?,
+                    farm_size_acres = ?,
+                    notes = ?,
+                    updated_at = ?
+                WHERE user_id = ?
+            """, (
+                data.get("farm_name"),
+                data.get("latitude"),
+                data.get("longitude"),
+                data.get("street"),
+                data.get("city"),
+                data.get("state"),
+                data.get("zip_code"),
+                data.get("country"),
+                data.get("farm_size_acres"),
+                data.get("notes"),
+                datetime.now(),
+                user_id,
+            ))
+            message = f"Farmer profile for user_id {user_id} updated successfully."
+        else:
+            # ✅ Insert new profile (Upsert)
+            cursor.execute("""
+                INSERT INTO farmer_profiles (
+                    user_id, farm_name, latitude, longitude, street,
+                    city, state, zip_code, country, farm_size_acres, notes,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                user_id,
+                data.get("farm_name"),
+                data.get("latitude"),
+                data.get("longitude"),
+                data.get("street"),
+                data.get("city"),
+                data.get("state"),
+                data.get("zip_code"),
+                data.get("country"),
+                data.get("farm_size_acres"),
+                data.get("notes"),
+                datetime.now(),
+                datetime.now(),
+            ))
+            message = f"Farmer profile for user_id {user_id} created successfully."
+
+        conn.commit()
+        return {"message": message}
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e
+    finally:
+        if conn:
+            conn.close()
+

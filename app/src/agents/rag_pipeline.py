@@ -8,17 +8,45 @@ from langchain.chains import RetrievalQA
 from langchain.tools import tool
 from PyPDF2 import PdfReader
 import os
+import shutil
+from dotenv import load_dotenv
+import time
+load_dotenv()
 
 # ===============================
 # CONFIG
 # ===============================
-CHROMA_DB_PATH = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/openai_chroma_db"
-PDF_PATH = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/Success-Stories-Farmers.pdf"
+CHROMA_DB_PATH = "./app/src/agents/openai_chroma_db"
+PDF_PATH = "./app/src/agents/Success-Stories-Farmers.pdf"
+
+
+def reset_chroma_db():
+    """Delete the existing Chroma database directory completely."""
+    try:
+        # Ensure global vector DB is closed if loaded
+        global GLOBAL_VECTORDb
+        if 'GLOBAL_VECTORDb' in globals() and GLOBAL_VECTORDb is not None:
+            print("🔒 Closing existing Chroma DB connection...")
+            try:
+                GLOBAL_VECTORDb._client.reset()  # Closes any active connections
+            except Exception:
+                pass
+            del GLOBAL_VECTORDb
+            time.sleep(1)  # Small pause to let Windows release the file handle
+
+        if os.path.exists(CHROMA_DB_PATH):
+            print("🗑️ Deleting existing Chroma vector database...")
+            shutil.rmtree(CHROMA_DB_PATH, ignore_errors=False)
+            print("✅ Old Chroma DB deleted.")
+        else:
+            print("ℹ️ No existing Chroma DB found. Fresh start.")
+
+    except PermissionError as e:
+        print(f"⚠️ PermissionError while deleting: {e}")
+        print("💡 Tip: Ensure no Python/Chroma process is using the DB, then try again.")
 
 # Set your OpenAI API key (ensure you’ve set it in your environment)
 # e.g., setx OPENAI_API_KEY "your-api-key"
-from dotenv import load_dotenv
-load_dotenv()
 
 # ===============================
 # HELPER – Read PDF
@@ -137,5 +165,5 @@ def local_rag_tool(query: str) -> str:
 # ===============================
 if __name__ == "__main__":
     query = input("Ask a question about the farmer success stories: ")
-    answer = openai_rag_tool.invoke(query)
+    answer = local_rag_tool.invoke(query)
     print("🤖 Answer:", answer)

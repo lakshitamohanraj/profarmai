@@ -1,29 +1,3 @@
 {
-    "Most Important": {
-        "temperature": {
-            "reason": "Current temperature at 28\u00b0C is suitable for the growing Sweet Corn, but if temperatures rise significantly, it could stress the plants, impacting growth and yield."
-        },
-        "humidity": {
-            "reason": "Relative humidity at 83% is high, which can promote fungal diseases in crops, especially in Corn, which is currently growing. Monitoring is essential to prevent outbreaks."
-        },
-        "precipitation": {
-            "reason": "No rainfall forecast, which can impact the irrigation needs of the growing Corn crop. Adequate water supply through drip irrigation is crucial to maintain optimal growth conditions."
-        }
-    },
-    "Moderately Important": {
-        "wind_speed": {
-            "reason": "Wind speed at 3.1 m/s is moderate and should not pose a significant risk to crops. However, it can affect pollination in Corn if it increases."
-        },
-        "cloud_cover": {
-            "reason": "Cloud cover at 45% indicates partial sunlight, which is generally beneficial for crops. However, excessive cloud cover could limit photosynthesis for the growing Corn."
-        }
-    },
-    "Least Important": {
-        "aqi": {
-            "reason": "Air quality index at 177 indicates unhealthy levels which may affect livestock health and worker comfort, but it has less direct impact on crop growth."
-        },
-        "uv": {
-            "reason": "UV index at 0 is currently low, posing minimal risk for sunburn on plants. However, it's essential for overall plant health and growth but less critical at this moment."
-        }
-    }
+    "analysis_text": "```json\n{\n  \"Most Important\": {\n    \"Temperature\": {\n      \"value\": 28,\n      \"reason\": \"Current temperature of 28\u00b0C is favorable for growing corn, which is in the growing stage. Extreme temperatures could affect growth rates.\"\n    },\n    \"Humidity\": {\n      \"value\": 83,\n      \"reason\": \"High humidity levels can benefit the growing corn but may also promote fungal diseases if not managed properly.\"\n    },\n    \"Wind Speed\": {\n      \"value\": 3.1,\n      \"reason\": \"Low wind speed is beneficial for the growth of corn and minimizes water loss from irrigation systems.\"\n    }\n  },\n  \"Moderately Important\": {\n    \"Cloud Cover\": {\n      \"value\": 45,\n      \"reason\": \"Moderate cloud cover may provide some shade, which can help reduce stress on the corn crop during peak sunlight hours.\"\n    },\n    \"Precipitation\": {\n      \"value\": 0,\n      \"reason\": \"No immediate rainfall forecast implies the need for continued irrigation for the growing corn, especially with clay loam soil.\"\n    },\n    \"UV Index\": {\n      \"value\": 0,\n      \"reason\": \"Low UV index suggests minimal risk of sunburn to crops but also indicates a lack of solar energy, which could affect photosynthesis.\"\n    }\n  },\n  \"Least Important\": {\n    \"Air Quality Index\": {\n      \"value\": 177,\n      \"reason\": \"While high AQI can affect livestock health indirectly, it is less critical for immediate crop production decisions.\"\n    },\n    \"Wind Direction\": {\n      \"value\": \"ENE\",\n      \"reason\": \"Wind direction is not crucial for the current agricultural activities as there are no immediate pest or disease threats that would be influenced by wind.\"\n    },\n    \"Solar Radiation\": {\n      \"value\": 0,\n      \"reason\": \"Zero solar radiation indicates cloud cover but does not require immediate action given the current crop health status.\"\n    }\n  }\n}\n```"
 }

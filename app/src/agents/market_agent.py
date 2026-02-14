@@ -9,8 +9,10 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain_community.chat_message_histories import SQLChatMessageHistory
-# from langchain_community.chat_message_histories.sqlite import SQLiteChatMessageHistory
 
+import sqlite3
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import SystemMessage
 from dotenv import load_dotenv
 import os
 
@@ -59,8 +61,6 @@ def get_memory(session_id: str):
 # Conversation run function with memory
 
 def get_market_analysis():
-    # memory = get_memory(session_id)
-    
     with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\market_research_agent.txt", "r") as f:
         prompt_template = f.read()
 
@@ -109,15 +109,6 @@ def get_market_analysis():
         "farmer_profile":farmer_profile
         })
     
-    # filename = "D:/accenture-hackathon/profarmai/app/src/agents/market_analysis_output.json"
-    # print(type(response['text']))
-    # try:
-    #     with open(filename, 'w') as json_file:
-    #         json.dump(json.loads(response['text']), json_file, indent=4) # indent=4 for pretty printing
-    #     print(f"JSON file '{filename}' created successfully.")
-    # except IOError as e:
-    #     print(f"Error creating file: {e}")
-        
     return response
 
 
@@ -167,3 +158,80 @@ def get_market_related_risks():
     
 
 
+# For 2nd version UI
+
+def get_market_context(session_id: str):
+    """Fetch only relevant market-related tables and convert to structured JSON context."""
+    conn = sqlite3.connect("./app/src/mydatabase.db")
+    cursor = conn.cursor()
+    market_data = {}
+    
+    tables = ["market_sellers", "market_buyers", "equipment_records"]
+
+    print("\n=== Fetching Market Context for User:", session_id, "===")
+    for table in tables:
+        try:
+            cursor.execute(f"SELECT * FROM {table} WHERE user_id=?", (session_id,))
+            rows = cursor.fetchall()
+            col_names = [desc[0] for desc in cursor.description]
+            formatted_rows = [dict(zip(col_names, row)) for row in rows]
+            market_data[table] = formatted_rows
+            print(f"✅ Table: {table} -> {len(formatted_rows)} records")
+        except Exception as e:
+            print(f"⚠️ Error reading table {table}: {e}")
+
+    conn.close()
+
+    # Convert full user context to readable string
+    context_str = json.dumps(market_data, indent=2)
+    return context_str
+
+
+def run_market_analyzer(session_id: str, focus: str = "general"):
+    """
+    Analyze current market situation and generate insights/tips.
+    focus can be 'general', 'sellers', 'buyers', or 'equipment' — optional.
+    """
+
+    context_str = get_market_context(session_id)
+
+    llm = ChatOpenAI(
+        openai_api_key=os.getenv("OPENAI_API_KEY"),
+        model_name="gpt-4o-mini",
+        temperature=0.5
+    )
+
+    # System prompt guiding the LLM behavior
+    system_prompt = """
+    You are an expert Agricultural Market Analyst AI that helps Indian farmers understand current market conditions.
+
+    You have access to the farmer's local market data — sellers, buyers, equipment records.
+    Your job is to:
+    - Identify trends or demand-supply mismatches
+    - Recommend where to sell or buy
+    - Provide practical market tips and insights
+    - Suggest profitable opportunities based on current and external data
+
+    Use plain, farmer-friendly language.
+    """
+
+    user_prompt = f"""
+    Here is the farmer's recent market context:
+
+    {context_str}
+
+    Analyze this data and provide a tip(short and crisp suggestion) on:
+    - Current market trend summary
+    - Which items are in high demand
+    - Which inputs or equipment might be needed soon
+    - Any good opportunities (from external market opportunities) relevant to the farmer
+    - Actionable next steps
+
+    Focus area: {focus}
+    """
+
+    print("🧩 Running Market Analyzer Agent...")
+    response = llm.invoke([SystemMessage(content=system_prompt), SystemMessage(content=user_prompt)])
+    return response.content
+
+    

@@ -22,7 +22,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-
+    
 # Setup SQLite message history (persisted memory)
 def get_memory(session_id: str):
     message_history = SQLChatMessageHistory(
@@ -54,17 +54,7 @@ def sample_conv(user_prompt: str, session_id: str):
     response = conversation.run(user_prompt)
     return response
 
-'''def get_coordinator_memory(session_id:str):
-    message_history = SQLChatMessageHistory(
-        session_id=session_id,
-        connection_string="sqlite:///mydatabase.db" # sqlite///:memory.db
-    )
-    memory = ConversationBufferMemory(
-        memory_key="chat_history",
-        chat_memory=message_history,
-        return_messages=True
-    )
-    return memory'''
+
 def get_coordinator_memory(session_id: str):
     message_history = SQLChatMessageHistory(
         session_id=session_id,
@@ -72,11 +62,11 @@ def get_coordinator_memory(session_id: str):
     )
 
     #Fetch personalized context from your other tables
-    conn = sqlite3.connect("mydatabase.db")
+    conn = sqlite3.connect("./app/src/mydatabase.db")
     cursor = conn.cursor()
     user_data = {}
 
-    tables = ["farm", "crop_production", "equipment", "livestock_production", "farm_budget"]
+    tables = ["finance_records", "crop_records", "livestock_records", "equipment_records", "market_sellers","market_buyers","farmer_profiles"]
 
     print("\n=== Fetching Context for User:", session_id, "===")
     for table in tables:
@@ -130,8 +120,8 @@ def run(user_prompt: str, session_id: str):
 
  
     tools = [weather_analysis_tool,weather_risk_tool,local_rag_tool ,weather_query_tool]
-    
-    with open("C:\\Users\\MUTHU\\Documents\\aproj\\profarm-backend\\profarmai\\app\\src\\prompts\\coordinator_prompt.txt", "r") as f:
+   
+    with open("./app/src/prompts/coordinator_prompt.txt", "r") as f:
         prompt_text = f.read()
     
     #weather_analysis_tool("default_user")  # or actual user_id
@@ -151,10 +141,7 @@ def run(user_prompt: str, session_id: str):
     )
 
     # Decide when to call RAG
-    '''if any(word in user_prompt.lower() for word in ["biradar", "millet", "swayam shakthi"]):
-        response = local_rag_tool.invoke(user_prompt)
-    else:
-        response = agent.run(user_prompt)'''
+   
     response = agent.run(user_prompt)
     contextual_prompt = f"""
     Here is background information about the user (for reference only, do not repeat verbatim):
@@ -169,10 +156,11 @@ def run(user_prompt: str, session_id: str):
     return response
 
 def get_weather_and_agri_status(user_id:str):
-    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_data.json", "r") as wf:
+    
+    with open("./app/src/agents/weather_data.json", "r") as wf:
         weather_data = json.load(wf)
 
-    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/farmer_agricultural_status.json", "r") as af:
+    with open("./app/src/agents/farmer_agricultural_status.json", "r") as af:
         agri_status = json.load(af)
 
     # Convert to string
@@ -181,17 +169,17 @@ def get_weather_and_agri_status(user_id:str):
     return weather_data_str,agri_status_str
 
 def get_weather_and_finance_status(user_id:str):
-    filepath="C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json"
+    filepath="./app/src/agents/weather_analysis_output.json"
     if not os.path.exists(filepath) or os.path.getsize(filepath) == 0:
         print(f"File '{filepath}' is empty or does not exist. Writing empty string.")
         with open(filepath, 'w') as f:
             f.write("")
         weather_analysis="Empty at the moment.."  # Return an empty string as per the requirement
     else:
-        with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json", "r") as wf:
+        with open("./app/src/agents/weather_analysis_output.json", "r") as wf:
             weather_analysis = json.load(wf)
     # app\src\agents\financial_memory_summary.json
-    with open("C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/financial_memory_summary.json", "r") as af:
+    with open("./app/src/agents/financial_memory_summary.json", "r") as af:
         finance_stats = json.load(af)
 
     # Convert to string
@@ -227,7 +215,7 @@ import re
 def weather_query_tool(user_query: str) -> str:
     """Answer weather-related user queries and temperature , humidity queries using the stored weather analysis JSON."""
     try:
-        filepath = "C:/Users/MUTHU/Documents/aproj/profarm-backend/profarmai/app/src/agents/weather_analysis_output.json"
+        filepath = "./app/src/agents/weather_analysis_output.json"
         with open(filepath, 'r') as f:
             data = json.load(f)
 

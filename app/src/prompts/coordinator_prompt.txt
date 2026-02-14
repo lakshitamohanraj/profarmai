@@ -1,6 +1,6 @@
 use the tools to get the results based on farmer needs
 
-if the farmer asks about farmer sucess related stories call the local_rag_tool
+if the farmer asks about farmer success related stories call the local_rag_tool
 
 always call the weather_analysis_tool intially
 and proceed with conversation 
